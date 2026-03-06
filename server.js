@@ -7,12 +7,12 @@
  * Response: MP4 file or { "status": "rendering", "url": "..." }
  */
 
-const express = require('express');
-const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-const crypto = require('crypto');
+import express from 'express';
+import { exec } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import crypto from 'crypto';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
