@@ -1,0 +1,26 @@
+{
+  "name": "remotion-cloud-renderer",
+  "version": "1.0.0",
+  "description": "Cloud video rendering service using Remotion on Render.com",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "remotion",
+    "video",
+    "render",
+    "cloud"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
