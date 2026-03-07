@@ -1,0 +1,53 @@
+{
+  "topic": "Why XRP is gonna be next bitcoin",
+  "concept": "A visual journey through the history and growth potential of XRP, comparing it to Bitcoin's rise.",
+  "brand": "Capital.com",
+  "colors": {
+    "bg": "#05050f",
+    "primary": "#00b899",
+    "secondary": "#ffffff"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "voiceover_text": "CAPITAL.COM EXPLORING XRP'S FUTURE",
+      "visual_description": "A white square with a black line displaying 'Capital.com' and a line of gold stars below it. The year '2010' is shown on the left, and '2015' on the right.",
+      "motion_graphics_instruction": "Static",
+      "background_style": "Clean, minimalistic design",
+      "transition": "None"
+    },
+    {
+      "id": 2,
+      "voiceover_text": "IN 2010, BITCOIN WAS BORN",
+      "visual_description": "A timeline animation showing Bitcoin's creation in 2010 with a brief animation of a Bitcoin logo emerging.",
+      "motion_graphics_instruction": "Timeline animation from left to right",
+      "background_style": "Black background with white lines",
+      "transition": "Fade in"
+    },
+    {
+      "id": 3,
+      "voiceover_text": "XRP GROWS IN 2015",
+      "visual_description": "A second timeline animation showing XRP's growth in 2015 with a brief animation of an XRP logo emerging.",
+      "motion_graphics_instruction": "Timeline animation from left to right",
+      "background_style": "Black background with white lines",
+      "transition": "Fade in"
+    },
+    {
+      "id": 4,
+      "voiceover_text": "XRP'S FUTURE?",
+      "visual_description": "A futuristic cityscape animation with a focus on XRP's potential growth and adoption.",
+      "motion_graphics_instruction": "Animated cityscape with XRP logos",
+      "background_style": "Dark blue background with neon elements",
+      "transition": "Zoom in"
+    },
+    {
+      "id": 5,
+      "voiceover_text": "DISCOVER XRP AT CAPITAL.COM",
+      "visual_description": "Brand reveal with a white square with a black line displaying 'Capital.com' and a line of gold stars below it. The screen fades to black.",
+      "motion_graphics_instruction": "Light sweep from left to right",
+      "background_style": "Dark minimal",
+      "transition": "Fade to black"
+    }
+  ],
+  "format_size": "vertical"
+}

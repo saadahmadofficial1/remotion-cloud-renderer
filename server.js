@@ -4,7 +4,7 @@
  *
  * Endpoint: POST /render
  * Body: { "composition": "ProVertical", "config": {...}, "requestId": "xyz" }
- * Response: MP4 file or { "status": "rendering", "url": "..." }
+ * Response: { jobId, status, statusUrl }
  */
 
 import express from 'express';
@@ -13,6 +13,11 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -78,8 +83,8 @@ app.post('/render', async (req, res) => {
     // Write config file
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
-    // Update video.config.json in the project
-    const projectConfigPath = path.join(process.cwd(), 'video.config.json');
+    // Update video.config.json in the project root (Remotion reads this)
+    const projectConfigPath = path.join(__dirname, 'video.config.json');
     fs.writeFileSync(projectConfigPath, JSON.stringify(config, null, 2));
 
     // Register job
@@ -159,35 +164,57 @@ function startRender(jobId, composition, outputPath) {
   job.status = 'rendering';
   job.progress = 5;
 
-  // Build render command with laptop-friendly settings
+  // Container-optimised Chrome flags for Render.com (Linux/Docker)
+  const chromeFlags = [
+    '--disable-dev-shm-usage',   // Use /tmp instead of /dev/shm (critical in containers)
+    '--no-sandbox',               // Required in Docker/Render environments
+    '--disable-setuid-sandbox',
+    '--disable-gpu',              // No GPU in cloud container
+    '--disable-software-rasterizer',
+  ].join(' ');
+
+  // Build render command
   const cmd = [
+    `REMOTION_CHROME_FLAGS="${chromeFlags}"`,
     'npx', 'remotion', 'render',
     composition,
     outputPath,
     '--log=verbose',
-    '--concurrency=1',      // Single-threaded for stability
-    '--timeout=180000',     // 3 min browser timeout
+    '--concurrency=1',       // Single-threaded (512MB RAM constraint)
+    '--timeout=300000',      // 5 min browser timeout
+    '--jpeg-quality=80',     // Reduce memory during encode
   ].join(' ');
 
-  console.log(`[${jobId}] Starting render: ${cmd}`);
+  console.log(`[${jobId}] Starting render: composition=${composition}`);
 
   const child = exec(cmd, {
-    cwd: process.cwd(),
-    timeout: 900000,  // 15 min max
+    cwd: __dirname,           // Run from project root (where src/ and remotion.config.ts live)
+    timeout: 900000,          // 15 min max
+    env: {
+      ...process.env,
+      // Reduce Node.js memory overhead
+      NODE_OPTIONS: '--max-old-space-size=400',
+      // Chrome container flags
+      PUPPETEER_DISABLE_HEADLESS_WARNING: '1',
+    }
   });
 
+  let lastLog = '';
   child.stdout?.on('data', (data) => {
-    console.log(`[${jobId}] stdout:`, data.toString().slice(0, 100));
-    // Parse progress from Remotion output
-    const progressMatch = data.toString().match(/Frame (\d+) \/ (\d+)/);
-    if (progressMatch) {
-      const [current, total] = [parseInt(progressMatch[1]), parseInt(progressMatch[2])];
-      job.progress = Math.round((current / total) * 90) + 5; // 5-95% during render
+    const line = data.toString().trim();
+    if (line) lastLog = line;
+    console.log(`[${jobId}]`, line.slice(0, 120));
+    // Parse Remotion progress: "Frame 12/150"
+    const m = line.match(/Frame\s+(\d+)\s*\/\s*(\d+)/);
+    if (m) {
+      const [cur, tot] = [parseInt(m[1]), parseInt(m[2])];
+      job.progress = Math.round((cur / tot) * 90) + 5;
     }
   });
 
   child.stderr?.on('data', (data) => {
-    console.error(`[${jobId}] stderr:`, data.toString().slice(0, 100));
+    const line = data.toString().trim();
+    if (line) console.error(`[${jobId}] ERR:`, line.slice(0, 200));
   });
 
   child.on('error', (err) => {
@@ -199,14 +226,14 @@ function startRender(jobId, composition, outputPath) {
 
   child.on('exit', (code) => {
     if (code === 0) {
-      console.log(`[${jobId}] Render completed successfully`);
+      console.log(`[${jobId}] ✅ Render completed`);
       job.status = 'completed';
       job.progress = 100;
       job.downloadUrl = `/download/${jobId}`;
     } else {
-      console.error(`[${jobId}] Render failed with code ${code}`);
+      console.error(`[${jobId}] ❌ Render failed (exit code ${code}). Last log: ${lastLog}`);
       job.status = 'failed';
-      job.error = `Process exited with code ${code}`;
+      job.error = `Process exited with code ${code}. Last output: ${lastLog.slice(0, 200)}`;
       job.progress = 0;
     }
   });
@@ -220,8 +247,9 @@ process.on('unhandledRejection', (err) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🎬 Cloud Video Renderer running on port ${PORT}`);
-  console.log(`   Health: GET /health`);
-  console.log(`   Render: POST /render`);
-  console.log(`   Status: GET /status/:jobId`);
+  console.log(`   Health:   GET /health`);
+  console.log(`   Render:   POST /render`);
+  console.log(`   Status:   GET /status/:jobId`);
   console.log(`   Download: GET /download/:jobId`);
+  console.log(`   Project:  ${__dirname}`);
 });

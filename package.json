@@ -6,20 +6,42 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "postinstall": "node scripts/patch-bundler.cjs"
   },
-  "keywords": [
-    "remotion",
-    "video",
-    "render",
-    "cloud"
-  ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@remotion/animation-utils": "^4.0.432",
+    "@remotion/captions": "^4.0.432",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/gif": "^4.0.432",
+    "@remotion/google-fonts": "^4.0.432",
+    "@remotion/layout-utils": "^4.0.432",
+    "@remotion/light-leaks": "^4.0.432",
+    "@remotion/lottie": "^4.0.432",
+    "@remotion/media-utils": "^4.0.432",
+    "@remotion/motion-blur": "^4.0.432",
+    "@remotion/noise": "^4.0.432",
+    "@remotion/paths": "^4.0.432",
+    "@remotion/player": "^4.0.432",
+    "@remotion/rounded-text-box": "^4.0.432",
+    "@remotion/sfx": "^4.0.432",
+    "@remotion/shapes": "^4.0.432",
+    "@remotion/three": "^4.0.432",
+    "@remotion/transitions": "^4.0.432",
+    "@types/three": "^0.183.1",
+    "lucide-react": "^0.469.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "remotion": "^4.0.0",
+    "three": "^0.183.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
   "engines": {
     "node": ">=18.0.0"
   }
